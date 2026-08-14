@@ -144,16 +144,14 @@ async function loadCandidates(config: Config): Promise<CandidateSet> {
   const snapshotPath = path.join(config.dataDir, CANDIDATES_FILE);
   const raw = await readJson<unknown>(config.dataDir, CANDIDATES_FILE);
   if (raw !== undefined) {
-    const parsed = CandidateSetSchema.safeParse(raw);
-    if (!parsed.success) {
+    let cached: CandidateSet;
+    try {
+      cached = CandidateSetSchema.parse(raw);
+    } catch (error) {
       throw new Error(
-        `${snapshotPath} does not match the expected shape:\n` +
-          parsed.error.issues
-            .map((issue) => `  ${issue.path.join(".")}: ${issue.message}`)
-            .join("\n"),
+        `${snapshotPath} does not match the expected shape: ${(error as Error).message}`,
       );
     }
-    const cached = parsed.data;
     console.log(
       `Reusing ${snapshotPath} ` +
         `(${cached.withOpportunityNumber.length} candidates, ` +
