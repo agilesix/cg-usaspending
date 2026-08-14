@@ -45,7 +45,7 @@ snapshots against the live APIs.
 | `CG_SCHEMA_BASE_URL`           | `https://commongrants.org/schemas/yaml` | Where to fetch schemas from.                                                                    |
 | `DATA_DIR`                     | `./data`                                | Tracked input snapshots: candidates, opportunity cache, vendored schemas.                       |
 | `OUT_DIR`                      | `./out`                                 | Output directory.                                                                               |
-| `AS_OF`                        | now                                     | Date the run treats as "now" for award status. Pin it to reproduce a snapshot. See below.       |
+| `AS_OF`                        | now                                     | Date the run treats as "now" for award status and record timestamps. Pin it to reproduce a snapshot. See below. |
 
 The default agency list is HHS, Education, EPA, Justice, Interior, NSF, and
 Energy. DOT, USDA, and HUD are left out because they report `NOT APPLICABLE` for
@@ -94,7 +94,9 @@ An award's `status` is derived by comparing its period of performance against a
 reference date, which defaults to the moment the run happens. That is what a live
 run wants, and it means an unpinned rebuild of a fixed snapshot legitimately
 changes over time: every award whose period of performance has since ended moves
-from `awarded` to `completed`.
+from `awarded` to `completed`. The same reference date is the last-resort
+fallback for `createdAt` on an award that reports neither a signing date nor a
+period-of-performance start.
 
 So reproducing `data/awards.json` means pinning the reference date to the day the
 snapshot was taken, which is what `AS_OF` is for and what `pnpm check:reference`

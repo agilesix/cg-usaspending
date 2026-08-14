@@ -141,11 +141,21 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
 async function loadCandidates(config: Config): Promise<CandidateSet> {
   if (process.env.REFRESH_CANDIDATES === "1") return fetchCandidates(config);
 
+  const snapshotPath = path.join(config.dataDir, CANDIDATES_FILE);
   const raw = await readJson<unknown>(config.dataDir, CANDIDATES_FILE);
   if (raw !== undefined) {
-    const cached = CandidateSetSchema.parse(raw);
+    const parsed = CandidateSetSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new Error(
+        `${snapshotPath} does not match the expected shape:\n` +
+          parsed.error.issues
+            .map((issue) => `  ${issue.path.join(".")}: ${issue.message}`)
+            .join("\n"),
+      );
+    }
+    const cached = parsed.data;
     console.log(
-      `Reusing ${path.join(config.dataDir, CANDIDATES_FILE)} ` +
+      `Reusing ${snapshotPath} ` +
         `(${cached.withOpportunityNumber.length} candidates, ` +
         `${cached.opportunityNumbers.length} distinct numbers)`,
     );
@@ -189,6 +199,8 @@ async function build(config: Config): Promise<boolean> {
         : ", all emitted"),
   );
 
+  // The reference date the records are derived against, which AS_OF can pin.
+  // Distinct from when the run happened; the report records both.
   const fetchedAt = config.asOf;
   const awards: AwardBase[] = join.selected.map((pair) =>
     toAwardBase(pair.award, pair.opportunity, {
@@ -216,7 +228,8 @@ async function build(config: Config): Promise<boolean> {
 
   const awardsPath = await writeJson(config.outDir, AWARDS_FILE, awards);
   const reportPath = await writeJson(config.outDir, REPORT_FILE, {
-    generatedAt: fetchedAt.toISOString(),
+    generatedAt: new Date().toISOString(),
+    asOf: fetchedAt.toISOString(),
     source: {
       usaSpending: {
         baseUrl: config.usaSpendingBaseUrl,
@@ -257,10 +270,12 @@ async function build(config: Config): Promise<boolean> {
 async function validate(config: Config): Promise<boolean> {
   // Falls back to the committed reference output so a fresh clone can validate
   // before its first build.
-  const built = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
-  const awards =
-    built ?? (await readJson<unknown[]>(config.dataDir, AWARDS_FILE));
-  const source = path.join(built ? config.outDir : config.dataDir, AWARDS_FILE);
+  let awards = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
+  let source = path.join(config.outDir, AWARDS_FILE);
+  if (!awards) {
+    awards = await readJson<unknown[]>(config.dataDir, AWARDS_FILE);
+    source = path.join(config.dataDir, AWARDS_FILE);
+  }
   if (!awards) {
     console.error(
       `No awards to validate at ${path.join(config.outDir, AWARDS_FILE)} or ` +
