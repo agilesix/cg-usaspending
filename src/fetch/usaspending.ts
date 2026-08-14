@@ -205,14 +205,20 @@ export function opportunityNumberOf(award: AwardDetail): string {
   return fon;
 }
 
-export interface CandidateSet {
+/**
+ * A stage 1 sample. Parsed rather than cast when it is read back, because the
+ * snapshot on disk is a tracked file that can be hand-edited or left stale.
+ */
+export const CandidateSetSchema = z.object({
   /** Every award detail fetched. */
-  all: AwardDetail[];
+  all: z.array(AwardDetailSchema),
   /** Awards carrying a usable funding opportunity number. */
-  withOpportunityNumber: AwardDetail[];
+  withOpportunityNumber: z.array(AwardDetailSchema),
   /** Distinct opportunity numbers across `withOpportunityNumber`. */
-  opportunityNumbers: string[];
-}
+  opportunityNumbers: z.array(z.string()),
+});
+
+export type CandidateSet = z.infer<typeof CandidateSetSchema>;
 
 /**
  * Samples assistance awards across the configured agencies and returns those

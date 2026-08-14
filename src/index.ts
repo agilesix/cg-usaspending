@@ -3,7 +3,8 @@
  *
  *   pnpm fetch:candidates   Stage 1 only. Samples USAspending assistance awards
  *                           and reports how many carry a usable funding
- *                           opportunity number. Needs no API key.
+ *                           opportunity number. Needs no API key, and rewrites
+ *                           the tracked data/usaspending-candidates.json.
  *
  *   pnpm build:awards       Full pipeline. Reuses stage 1 output when present,
  *                           resolves each opportunity number against
@@ -17,7 +18,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { loadConfig, type Config } from "./config.js";
-import { collectCandidates, type CandidateSet } from "./fetch/usaspending.js";
+import {
+  collectCandidates,
+  CandidateSetSchema,
+  type CandidateSet,
+} from "./fetch/usaspending.js";
 import { createOpportunityResolver } from "./fetch/sgg.js";
 import { joinAwardsToOpportunities } from "./transform/join.js";
 import { toAwardBase } from "./transform/award.js";
@@ -136,8 +141,9 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
 async function loadCandidates(config: Config): Promise<CandidateSet> {
   if (process.env.REFRESH_CANDIDATES === "1") return fetchCandidates(config);
 
-  const cached = await readJson<CandidateSet>(config.dataDir, CANDIDATES_FILE);
-  if (cached) {
+  const raw = await readJson<unknown>(config.dataDir, CANDIDATES_FILE);
+  if (raw !== undefined) {
+    const cached = CandidateSetSchema.parse(raw);
     console.log(
       `Reusing ${path.join(config.dataDir, CANDIDATES_FILE)} ` +
         `(${cached.withOpportunityNumber.length} candidates, ` +
@@ -183,7 +189,7 @@ async function build(config: Config): Promise<boolean> {
         : ", all emitted"),
   );
 
-  const fetchedAt = new Date();
+  const fetchedAt = config.asOf;
   const awards: AwardBase[] = join.selected.map((pair) =>
     toAwardBase(pair.award, pair.opportunity, {
       fetchedAt,
@@ -251,12 +257,14 @@ async function build(config: Config): Promise<boolean> {
 async function validate(config: Config): Promise<boolean> {
   // Falls back to the committed reference output so a fresh clone can validate
   // before its first build.
+  const built = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
   const awards =
-    (await readJson<unknown[]>(config.outDir, AWARDS_FILE)) ??
-    (await readJson<unknown[]>(config.dataDir, AWARDS_FILE));
+    built ?? (await readJson<unknown[]>(config.dataDir, AWARDS_FILE));
+  const source = path.join(built ? config.outDir : config.dataDir, AWARDS_FILE);
   if (!awards) {
     console.error(
-      `No ${path.join(config.outDir, AWARDS_FILE)} to validate; run pnpm build:awards`,
+      `No awards to validate at ${path.join(config.outDir, AWARDS_FILE)} or ` +
+        `${path.join(config.dataDir, AWARDS_FILE)}; run pnpm build:awards`,
     );
     return false;
   }
@@ -264,7 +272,9 @@ async function validate(config: Config): Promise<boolean> {
   const validator = await validatorFor(config, awards);
   const { failures, knownGaps } = validateAll(validator, awards);
 
-  console.log(`Validated ${awards.length} records against AwardBase`);
+  console.log(
+    `Validated ${awards.length} records from ${source} against AwardBase`,
+  );
   if (knownGaps.length > 0) {
     printFailures(
       `${knownGaps.length} record(s) exercise a known schema gap:`,

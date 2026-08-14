@@ -1,8 +1,9 @@
 /**
  * Runtime configuration, read from the environment with sensible defaults.
  *
- * Every value has a default except `SGG_API_KEY`, which the caller must supply
- * to resolve funding opportunity numbers against Simpler.Grants.gov.
+ * Every value has a default, including `SGG_API_KEY`: the committed snapshots in
+ * `data/` cover the default run, and a key is only needed to resolve an
+ * opportunity number the cache does not already hold.
  */
 
 import fs from "node:fs";
@@ -74,6 +75,16 @@ export interface Config {
   dataDir: string;
   /** Directory for generated output. */
   outDir: string;
+  /**
+   * The date the run treats as "now" when deriving award status and the record
+   * timestamps USAspending does not publish.
+   *
+   * Defaults to the current time, which is what a live refresh wants. Pinning it
+   * is what makes a rebuild reproducible: `buildStatus` flips an award to
+   * `completed` once its period of performance has ended, so an unpinned rebuild
+   * of a fixed snapshot drifts as those end dates pass.
+   */
+  asOf: Date;
 }
 
 function int(name: string, fallback: number): number {
@@ -101,6 +112,17 @@ function list(name: string, fallback: string[]): string[] {
   if (items.length === 0)
     throw new Error(`${name} was set but contained no values`);
   return items;
+}
+
+/** Reads the run's reference date. Unset means now. */
+function asOfDate(): Date {
+  const raw = process.env.AS_OF;
+  if (!raw) return new Date();
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`AS_OF must be a parseable date, got "${raw}"`);
+  }
+  return parsed;
 }
 
 function opportunityIdentifiersMode(): "include" | "omit" {
@@ -143,5 +165,6 @@ export function loadConfig(): Config {
       process.env.CG_SCHEMA_BASE_URL ?? "https://commongrants.org/schemas/yaml",
     dataDir,
     outDir: process.env.OUT_DIR ?? path.join(root, "out"),
+    asOf: asOfDate(),
   };
 }

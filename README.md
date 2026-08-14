@@ -11,8 +11,9 @@ exposes the same value on an opportunity as
 
 The repo ships with static snapshots of both datasets under `data/`, so the
 default run is offline: no API keys, no network. The committed `data/awards.json`
-is the reference output, and an offline rebuild reproduces it byte for byte.
-Live API access is only needed to refresh the snapshots.
+is the reference output, and `pnpm check:reference` rebuilds it offline and
+confirms the result is byte for byte identical. Live API access is only needed to
+refresh the snapshots.
 
 ## Install
 
@@ -44,6 +45,7 @@ snapshots against the live APIs.
 | `CG_SCHEMA_BASE_URL`           | `https://commongrants.org/schemas/yaml` | Where to fetch schemas from.                                                                    |
 | `DATA_DIR`                     | `./data`                                | Tracked input snapshots: candidates, opportunity cache, vendored schemas.                       |
 | `OUT_DIR`                      | `./out`                                 | Output directory.                                                                               |
+| `AS_OF`                        | now                                     | Date the run treats as "now" for award status. Pin it to reproduce a snapshot. See below.       |
 
 The default agency list is HHS, Education, EPA, Justice, Interior, NSF, and
 Energy. DOT, USDA, and HUD are left out because they report `NOT APPLICABLE` for
@@ -70,15 +72,34 @@ Re-sampling rewrites `data/usaspending-candidates.json` and adds any new
 opportunity-number lookups to `data/opportunity-cache.json`, so a refresh shows
 up as a reviewable git diff.
 
-Three commands are available:
+Four commands are available:
 
 - `pnpm fetch:candidates` runs stage 1 only. It samples USAspending and reports
-  how many awards carry a usable opportunity number. No API key needed.
+  how many awards carry a usable opportunity number. No API key needed, but it
+  goes to the network and rewrites `data/usaspending-candidates.json`, so the
+  refreshed snapshot shows up as a git diff the same way `REFRESH_CANDIDATES=1`
+  does.
 - `pnpm build:awards` runs the full pipeline. It reuses the committed stage 1
   snapshot, resolves opportunity numbers, joins, filters, transforms, and
   validates.
 - `pnpm validate:awards` re-validates `out/awards.json`, falling back to the
   committed `data/awards.json`.
+- `pnpm check:reference` rebuilds offline with `AS_OF` pinned to the snapshot
+  date and compares the result to `data/awards.json`, so the reference output
+  cannot drift from what the code and inputs actually produce.
+
+### Award status and `AS_OF`
+
+An award's `status` is derived by comparing its period of performance against a
+reference date, which defaults to the moment the run happens. That is what a live
+run wants, and it means an unpinned rebuild of a fixed snapshot legitimately
+changes over time: every award whose period of performance has since ended moves
+from `awarded` to `completed`.
+
+So reproducing `data/awards.json` means pinning the reference date to the day the
+snapshot was taken, which is what `AS_OF` is for and what `pnpm check:reference`
+does. Refreshing the snapshots means bumping the pinned date in that script
+alongside the regenerated data.
 
 Tracked inputs live in `data/`:
 
@@ -86,7 +107,7 @@ Tracked inputs live in `data/`:
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | `usaspending-candidates.json` | Raw USAspending award records from stage 1.                                     |
 | `opportunity-cache.json`      | Opportunity number to opportunity, including confirmed misses.                  |
-| `awards.json`                 | Committed reference output; an offline rebuild reproduces it byte for byte.     |
+| `awards.json`                 | Committed reference output; `pnpm check:reference` proves a rebuild matches it. |
 | `schemas/`                    | Vendored CommonGrants v0.4.0 YAML schema bundle, everything `AwardBase` needs.  |
 
 Generated output lands in `out/`:
