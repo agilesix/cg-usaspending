@@ -164,7 +164,7 @@ function withCache(
       if (!inner) {
         throw new Error(
           `No cached lookup for opportunity number "${federalOpportunityNumber}" and no ` +
-            `SGG_API_KEY to fetch it. Set SGG_API_KEY, or point OUT_DIR at a directory ` +
+            `SGG_API_KEY to fetch it. Set SGG_API_KEY, or point DATA_DIR at a directory ` +
             `whose opportunity-cache.json covers every candidate.`,
         );
       }
@@ -198,7 +198,7 @@ function withCache(
  * the run proceeds from cache alone and fails on the first uncached number.
  */
 export function createOpportunityResolver(config: Config): OpportunityResolver {
-  const cachePath = path.join(config.outDir, "opportunity-cache.json");
+  const cachePath = path.join(config.dataDir, "opportunity-cache.json");
   const live = config.sggApiKey ? createLiveResolver(config) : null;
   return withCache(live, cachePath);
 }

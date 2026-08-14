@@ -10,7 +10,8 @@
  *                           Simpler.Grants.gov, joins, filters, transforms to
  *                           CommonGrants AwardBase, and validates.
  *
- *   pnpm validate:awards    Re-validates an existing out/awards.json.
+ *   pnpm validate:awards    Re-validates out/awards.json, falling back to the
+ *                           committed data/awards.json.
  */
 
 import fs from "node:fs/promises";
@@ -82,24 +83,19 @@ function toWire<T>(records: readonly T[]): unknown[] {
 }
 
 async function writeJson(
-  config: Config,
+  dir: string,
   name: string,
   value: unknown,
 ): Promise<string> {
-  await fs.mkdir(config.outDir, { recursive: true });
-  const target = path.join(config.outDir, name);
+  await fs.mkdir(dir, { recursive: true });
+  const target = path.join(dir, name);
   await fs.writeFile(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
   return target;
 }
 
-async function readJson<T>(
-  config: Config,
-  name: string,
-): Promise<T | undefined> {
+async function readJson<T>(dir: string, name: string): Promise<T | undefined> {
   try {
-    return JSON.parse(
-      await fs.readFile(path.join(config.outDir, name), "utf8"),
-    ) as T;
+    return JSON.parse(await fs.readFile(path.join(dir, name), "utf8")) as T;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw error;
@@ -132,7 +128,7 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
     `  ${candidates.opportunityNumbers.length} distinct opportunity numbers`,
   );
 
-  const target = await writeJson(config, CANDIDATES_FILE, candidates);
+  const target = await writeJson(config.dataDir, CANDIDATES_FILE, candidates);
   console.log(`  wrote ${target}`);
   return candidates;
 }
@@ -140,10 +136,10 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
 async function loadCandidates(config: Config): Promise<CandidateSet> {
   if (process.env.REFRESH_CANDIDATES === "1") return fetchCandidates(config);
 
-  const cached = await readJson<CandidateSet>(config, CANDIDATES_FILE);
+  const cached = await readJson<CandidateSet>(config.dataDir, CANDIDATES_FILE);
   if (cached) {
     console.log(
-      `Reusing ${path.join(config.outDir, CANDIDATES_FILE)} ` +
+      `Reusing ${path.join(config.dataDir, CANDIDATES_FILE)} ` +
         `(${cached.withOpportunityNumber.length} candidates, ` +
         `${cached.opportunityNumbers.length} distinct numbers)`,
     );
@@ -212,8 +208,8 @@ async function build(config: Config): Promise<boolean> {
     );
   }
 
-  const awardsPath = await writeJson(config, AWARDS_FILE, awards);
-  const reportPath = await writeJson(config, REPORT_FILE, {
+  const awardsPath = await writeJson(config.outDir, AWARDS_FILE, awards);
+  const reportPath = await writeJson(config.outDir, REPORT_FILE, {
     generatedAt: fetchedAt.toISOString(),
     source: {
       usaSpending: {
@@ -253,7 +249,11 @@ async function build(config: Config): Promise<boolean> {
 // =============================================================================
 
 async function validate(config: Config): Promise<boolean> {
-  const awards = await readJson<unknown[]>(config, AWARDS_FILE);
+  // Falls back to the committed reference output so a fresh clone can validate
+  // before its first build.
+  const awards =
+    (await readJson<unknown[]>(config.outDir, AWARDS_FILE)) ??
+    (await readJson<unknown[]>(config.dataDir, AWARDS_FILE));
   if (!awards) {
     console.error(
       `No ${path.join(config.outDir, AWARDS_FILE)} to validate; run pnpm build:awards`,

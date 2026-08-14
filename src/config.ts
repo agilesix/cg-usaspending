@@ -5,6 +5,7 @@
  * to resolve funding opportunity numbers against Simpler.Grants.gov.
  */
 
+import fs from "node:fs";
 import path from "node:path";
 
 /** Awarding agencies to sample USAspending candidates from.
@@ -69,6 +70,8 @@ export interface Config {
   schemaDir: string | undefined;
   /** Base URL to fetch the schema bundle from when no local directory is set. */
   schemaBaseUrl: string;
+  /** Directory holding the tracked input snapshots (candidates, opportunity cache, schemas). */
+  dataDir: string;
   /** Directory for generated output. */
   outDir: string;
 }
@@ -112,6 +115,8 @@ function opportunityIdentifiersMode(): "include" | "omit" {
 
 export function loadConfig(): Config {
   const root = process.cwd();
+  const dataDir = process.env.DATA_DIR ?? path.join(root, "data");
+  const vendoredSchemas = path.join(dataDir, "schemas");
   return {
     sggBaseUrl: process.env.SGG_BASE_URL ?? "https://api.simpler.grants.gov",
     sggApiKey: process.env.SGG_API_KEY,
@@ -131,9 +136,12 @@ export function loadConfig(): Config {
     targetAwardCount: optionalInt("TARGET_AWARD_COUNT"),
     concurrency: int("CONCURRENCY", 8),
     opportunityIdentifiers: opportunityIdentifiersMode(),
-    schemaDir: process.env.CG_SCHEMA_DIR,
+    schemaDir:
+      process.env.CG_SCHEMA_DIR ??
+      (fs.existsSync(vendoredSchemas) ? vendoredSchemas : undefined),
     schemaBaseUrl:
       process.env.CG_SCHEMA_BASE_URL ?? "https://commongrants.org/schemas/yaml",
+    dataDir,
     outDir: process.env.OUT_DIR ?? path.join(root, "out"),
   };
 }
