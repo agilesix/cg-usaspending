@@ -1,0 +1,10 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Event.yaml
+anyOf:
+  - $ref: SingleDateEvent.yaml
+    description: A single date event
+  - $ref: DateRangeEvent.yaml
+    description: A date range event
+  - $ref: OtherEvent.yaml
+    description: Other event type
+description: Union of all event types

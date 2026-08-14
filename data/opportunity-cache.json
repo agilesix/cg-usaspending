@@ -1,0 +1,325 @@
+{
+  "12-558": {
+    "id": "3428e248-ede0-485b-b259-7c4cddf93e97",
+    "title": "Design and Construction of Regional Class Research Vessels (RCRV)",
+    "federalOpportunityNumber": "12-558",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "13-582": {
+    "id": "127f13aa-15fa-475e-b4ec-c46505abb54e",
+    "title": "National Optical Astronomy Observatory",
+    "federalOpportunityNumber": "13-582",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "14-568": null,
+  "17-550": null,
+  "21-552": {
+    "id": "958d65fb-8ced-4b0c-b527-1ba4d4109fc4",
+    "title": "NSF National Innovation Corps Teams (NSF National I-Corps (TM) Teams) program",
+    "federalOpportunityNumber": "21-552",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "21-593": null,
+  "21-603": null,
+  "22-541": {
+    "id": "7b28cac3-3aea-4f64-b08f-a5905b9ddf0b",
+    "title": "Division of Environmental Biology",
+    "federalOpportunityNumber": "22-541",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "22-586": {
+    "id": "392e3547-dea5-4af0-bb7d-02d3cb7b4de2",
+    "title": "Faculty Early Career Development Program",
+    "federalOpportunityNumber": "22-586",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "22-605": {
+    "id": "08c3e255-51ed-4d45-8526-01b16fe94ca6",
+    "title": "Division of Chemistry: Disciplinary Research Programs",
+    "federalOpportunityNumber": "22-605",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "22-607": {
+    "id": "77ab3018-aeb7-4319-86e3-067b3480a3f9",
+    "title": "Building Synthetic Microbial Communities for Biology, Mitigating Climate Change, Sustainability and Biotechnology",
+    "federalOpportunityNumber": "22-607",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "23-576": null,
+  "24-539": {
+    "id": "e1c0a0df-a73b-4d36-bcf7-f218c13322ac",
+    "title": "Division of Molecular and Cellular Biosciences Core Programs (MCB)",
+    "federalOpportunityNumber": "24-539",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "BJA-2020-17093": {
+    "id": "c76b43a2-81c6-42e0-92d5-d69aac19ac26",
+    "title": "BJA FY 20 Justice Reinvestment Initiative: Reducing Violent Crime by Improving Justice System Performance",
+    "federalOpportunityNumber": "BJA-2020-17093",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-BJA",
+    "agencyName": "Bureau of Justice Assistance"
+  },
+  "D-OIA-FA-25-004": null,
+  "D-OIA-FA-25-005": null,
+  "DE-FOA-0002271": {
+    "id": "3fd8ef68-c46c-44ba-b507-5e133bd84e39",
+    "title": "Advanced Reactor Demonstration",
+    "federalOpportunityNumber": "DE-FOA-0002271",
+    "status": "custom",
+    "agencyCode": "DOE-ID",
+    "agencyName": "Idaho Field Office"
+  },
+  "DE-FOA-0002936": {
+    "id": "a4f65c35-2602-4541-acd0-5f2ff9d75c59",
+    "title": "Industrial Decarbonization and Emissions Reduction Demonstration-to-Deployment Funding Opportunity Announcement",
+    "federalOpportunityNumber": "DE-FOA-0002936",
+    "status": "custom",
+    "agencyCode": "DOE-01",
+    "agencyName": "Headquarters"
+  },
+  "DE-FOA-0003106": {
+    "id": "633a2e67-555c-4dcf-8ab6-3163abaaff75",
+    "title": "Domestic Manufacturing Conversion Grants",
+    "federalOpportunityNumber": "DE-FOA-0003106",
+    "status": "custom",
+    "agencyCode": "DOE-NETL",
+    "agencyName": "National Energy Technology Laboratory"
+  },
+  "DE-FOA-0003177": {
+    "id": "5f2a55d5-66b6-4625-a3bd-59adf8555c27",
+    "title": "FY 2024 Continuation of Solicitation for the Office of Science Financial Assistance Program",
+    "federalOpportunityNumber": "DE-FOA-0003177",
+    "status": "custom",
+    "agencyCode": "PAMS-SC",
+    "agencyName": "Office of Science"
+  },
+  "DE-FOA-0003182": null,
+  "DE-FOA-0003195": {
+    "id": "e689dd76-0163-4553-877d-dc52b55633e6",
+    "title": "Bipartisan Infrastructure Law (BIL) Grid Resilience and Innovative Partnerships (GRIP)",
+    "federalOpportunityNumber": "DE-FOA-0003195",
+    "status": "closed",
+    "agencyCode": "DOE-NETL",
+    "agencyName": "National Energy Technology Laboratory"
+  },
+  "ED-GRANTS-011921-002": {
+    "id": "a700d367-fc8e-4ec5-be16-1975a36919fc",
+    "title": "Office of Career, Technical, and Adult Education (OCTAE): Native Hawaiian Career and Technical Education Program (NHCTEP),  Assistance Listing Number 84.259A",
+    "federalOpportunityNumber": "ED-GRANTS-011921-002",
+    "status": "custom",
+    "agencyCode": "ED",
+    "agencyName": "Department of Education"
+  },
+  "ED-GRANTS-062320-001": {
+    "id": "699e3196-02f1-4c46-b16b-3afbe36b456f",
+    "title": "Office of Career, Technical, and Adult Education (OCTAE): FY 2020 Education Stabilization Fund: Reimagine Workforce Preparation (ESF-RWP) Grants Program CFDA Number 84.425G",
+    "federalOpportunityNumber": "ED-GRANTS-062320-001",
+    "status": "custom",
+    "agencyCode": "ED",
+    "agencyName": "Department of Education"
+  },
+  "ED-GRANTS-062519-001": {
+    "id": "bdf4932a-369d-4447-b45c-2b758ae49780",
+    "title": "Office of Career, Technical, and Adult Education (OCTAE): Tribally Controlled Postsecondary Career and Technical Institutions Program CFDA Number 84.245",
+    "federalOpportunityNumber": "ED-GRANTS-062519-001",
+    "status": "closed",
+    "agencyCode": "ED",
+    "agencyName": "Department of Education"
+  },
+  "EPA-CEP-01": null,
+  "EPA-CEP-02": null,
+  "EPA-OAR-OAQPS-18-08": {
+    "id": "6b260f29-1b25-4463-a68f-0616cc3a99d3",
+    "title": "2018 Targeted Airshed Grant Program",
+    "federalOpportunityNumber": "EPA-OAR-OAQPS-18-08",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-OAR-OTAQ-19-01": {
+    "id": "73b1d4e6-6134-4247-bb1e-cdc15586b31a",
+    "title": "Clean Diesel Funding Assistance Program FY 2019",
+    "federalOpportunityNumber": "EPA-OAR-OTAQ-19-01",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-OLEM-OBLR-18-08": {
+    "id": "9dbf766f-65ec-48bc-a28b-aefbb6423e5a",
+    "title": "FY19 GUIDELINES FOR BROWNFIELDS MULTIPURPOSE (MP) GRANTS",
+    "federalOpportunityNumber": "EPA-OLEM-OBLR-18-08",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-R-HQ-CCIA-23": {
+    "id": "e75691c6-5374-451f-b493-0829dbe900cc",
+    "title": "Clean Communities Investment Accelerator (CCIA)",
+    "federalOpportunityNumber": "EPA-R-HQ-CCIA-23",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-R-HQ-NCIF-23": {
+    "id": "a65015f3-13e7-4573-a97a-b067ef0c64c4",
+    "title": "National Clean Investment Fund (NCIF)",
+    "federalOpportunityNumber": "EPA-R-HQ-NCIF-23",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-R-OAR-CPP-24-04": {
+    "id": "4825cdc5-2686-4244-8a6c-cae777bb3803",
+    "title": "Clean Ports Program: Zero-Emission Technology Deployment Competition",
+    "federalOpportunityNumber": "EPA-R-OAR-CPP-24-04",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "EPA-R-OAR-CPRGI-23-07": {
+    "id": "3dd084eb-18a6-4284-8bc5-963976629b8c",
+    "title": "Climate Pollution Reduction Grants Program: Implementation Grants (General Competition)",
+    "federalOpportunityNumber": "EPA-R-OAR-CPRGI-23-07",
+    "status": "custom",
+    "agencyCode": "EPA",
+    "agencyName": "Environmental Protection Agency"
+  },
+  "F-FWS-SA-24-012": null,
+  "G-G-RDC-22-002": null,
+  "IW-SIW-18-001": null,
+  "O-BJA-2024-172094": {
+    "id": "01b53526-23aa-4064-9a7a-c22db2d9c6e6",
+    "title": "BJA FY24 Presidential Nominating Conventions- Invited to Apply",
+    "federalOpportunityNumber": "O-BJA-2024-172094",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-BJA",
+    "agencyName": "Bureau of Justice Assistance"
+  },
+  "O-OVC-2021-19002": {
+    "id": "e8c9363d-2760-4647-a7cf-52959cfe5b18",
+    "title": "OVC FY 2021 VOCA Victim Assistance Formula Grant",
+    "federalOpportunityNumber": "O-OVC-2021-19002",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OVC",
+    "agencyName": "Office for Victims of Crime"
+  },
+  "O-OVC-2022-171314": {
+    "id": "5a393986-2b2e-404b-b25b-47649ad38f7e",
+    "title": "OVC FY 2022 VOCA Victim Assistance Formula Grant",
+    "federalOpportunityNumber": "O-OVC-2022-171314",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OVC",
+    "agencyName": "Office for Victims of Crime"
+  },
+  "O-OVC-2023-171712": {
+    "id": "7aba448d-d7fa-4f32-9abb-007cc310a444",
+    "title": "OVC FY 2023 VOCA Victim Assistance Formula Grant",
+    "federalOpportunityNumber": "O-OVC-2023-171712",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OVC",
+    "agencyName": "Office for Victims of Crime"
+  },
+  "O-OVC-2025-172428": {
+    "id": "f5c3508a-b657-4465-9445-b63a5aebc0eb",
+    "title": "OVC FY25 Victims of Crime Act (VOCA) Victim Assistance Formula Grant",
+    "federalOpportunityNumber": "O-OVC-2025-172428",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OVC",
+    "agencyName": "Office for Victims of Crime"
+  },
+  "OJJDP-2020-17353": {
+    "id": "eb3183fd-bc86-4872-af8e-192df5370fdb",
+    "title": "OJJDP FY 20 Enhancing Juvenile Indigent Defense",
+    "federalOpportunityNumber": "OJJDP-2020-17353",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OJJDP",
+    "agencyName": "Office of Juvenile Justice Delinquency Prevention "
+  },
+  "OJJDP-2020-18134": {
+    "id": "4e556afb-e466-4f9d-b12a-bd603dd8d60c",
+    "title": "OJJDP FY 20 Juvenile Justice System Enhancements",
+    "federalOpportunityNumber": "OJJDP-2020-18134",
+    "status": "closed",
+    "agencyCode": "USDOJ-OJP-OJJDP",
+    "agencyName": "Office of Juvenile Justice Delinquency Prevention "
+  },
+  "OVC-2019-15204": null,
+  "OVC-2020-17575": null,
+  "PD-16-1266": {
+    "id": "ba4cff17-e757-4899-be3c-e7b2157eb0c0",
+    "title": "Applied Mathematics",
+    "federalOpportunityNumber": "PD-16-1266",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "PD-16-1271": {
+    "id": "ddc111aa-2808-4719-9c09-d7995a9a4860",
+    "title": "Computational Mathematics",
+    "federalOpportunityNumber": "PD-16-1271",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "PD-18-1517": {
+    "id": "7839275b-3a58-42a2-8fd5-d75a3f977771",
+    "title": "Electronics, Photonics and Magnetic Devices",
+    "federalOpportunityNumber": "PD-18-1517",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "PD-21-1179": {
+    "id": "878fe1f3-3290-4782-b1a4-02874b5b6689",
+    "title": "Nanoscale Interactions",
+    "federalOpportunityNumber": "PD-21-1179",
+    "status": "custom",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "PD-22-1267": {
+    "id": "6bb680a6-1953-4cb5-b983-0c9312848582",
+    "title": "Topology",
+    "federalOpportunityNumber": "PD-22-1267",
+    "status": "open",
+    "agencyCode": "NSF",
+    "agencyName": "U.S. National Science Foundation"
+  },
+  "R-R-LCB-23-009": null,
+  "R-R-LCB-25-005": null,
+  "R-R-MB-22-002": null,
+  "R10AP20007": null,
+  "R23AS00433": {
+    "id": "0ca95e8a-bc32-424b-a6f4-c1dea0231874",
+    "title": "WaterSMART: Large-Scale Water Recycling Projects for Fiscal Years 2023 and 2024",
+    "federalOpportunityNumber": "R23AS00433",
+    "status": "closed",
+    "agencyCode": "DOI-BOR",
+    "agencyName": "Bureau of Reclamation"
+  },
+  "S-S-BIL-22-001": null,
+  "S-S-BIL-23-003": null,
+  "S-S-BIL-24-002": null,
+  "S-S-REG-24-003": null,
+  "S-S-REG-25-001": null,
+  "S-S-REG-25-002": null,
+  "S-S-REG-25-003": null,
+  "SM00-PAIMI": null
+}
