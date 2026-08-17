@@ -20,7 +20,8 @@ import path from "node:path";
 import { loadConfig, type Config } from "./config.js";
 import {
   collectCandidates,
-  CandidateSetSchema,
+  CandidateSnapshotSchema,
+  deriveCandidateSet,
   type CandidateSet,
 } from "./fetch/usaspending.js";
 import { createOpportunityResolver } from "./fetch/sgg.js";
@@ -133,7 +134,10 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
     `  ${candidates.opportunityNumbers.length} distinct opportunity numbers`,
   );
 
-  const target = await writeJson(config.dataDir, CANDIDATES_FILE, candidates);
+  // Only the fetched awards are stored; the filtered views are derived on read.
+  const target = await writeJson(config.dataDir, CANDIDATES_FILE, {
+    all: candidates.all,
+  });
   console.log(`  wrote ${target}`);
   return candidates;
 }
@@ -146,7 +150,7 @@ async function loadCandidates(config: Config): Promise<CandidateSet> {
   if (raw !== undefined) {
     let cached: CandidateSet;
     try {
-      cached = CandidateSetSchema.parse(raw);
+      cached = deriveCandidateSet(CandidateSnapshotSchema.parse(raw).all);
     } catch (error) {
       throw new Error(
         `${snapshotPath} does not match the expected shape: ${(error as Error).message}`,

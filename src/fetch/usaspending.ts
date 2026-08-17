@@ -206,19 +206,39 @@ export function opportunityNumberOf(award: AwardDetail): string {
 }
 
 /**
- * A stage 1 sample. Parsed rather than cast when it is read back, because the
- * snapshot on disk is a tracked file that can be hand-edited or left stale.
+ * The stage 1 snapshot as it lands on disk: only the awards fetched. The
+ * filtered views are derived on read rather than stored, so a hand-edited or
+ * half-refreshed snapshot cannot disagree with itself.
+ *
+ * Parsed rather than cast when it is read back, because the snapshot on disk is
+ * a tracked file that can be hand-edited or left stale.
  */
-export const CandidateSetSchema = z.object({
+export const CandidateSnapshotSchema = z.object({
   /** Every award detail fetched. */
   all: z.array(AwardDetailSchema),
-  /** Awards carrying a usable funding opportunity number. */
-  withOpportunityNumber: z.array(AwardDetailSchema),
-  /** Distinct opportunity numbers across `withOpportunityNumber`. */
-  opportunityNumbers: z.array(z.string()),
 });
 
-export type CandidateSet = z.infer<typeof CandidateSetSchema>;
+/** A stage 1 sample, with the filtered views the rest of the pipeline reads. */
+export interface CandidateSet {
+  /** Every award detail fetched. */
+  all: AwardDetail[];
+  /** Awards carrying a usable funding opportunity number. */
+  withOpportunityNumber: AwardDetail[];
+  /** Distinct opportunity numbers across `withOpportunityNumber`. */
+  opportunityNumbers: string[];
+}
+
+/** Derives the filtered views from the awards fetched. */
+export function deriveCandidateSet(all: AwardDetail[]): CandidateSet {
+  const withOpportunityNumber = all.filter(hasUsableOpportunityNumber);
+  return {
+    all,
+    withOpportunityNumber,
+    opportunityNumbers: [
+      ...new Set(withOpportunityNumber.map(opportunityNumberOf)),
+    ].sort(),
+  };
+}
 
 /**
  * Samples assistance awards across the configured agencies and returns those
@@ -240,10 +260,5 @@ export async function collectCandidates(config: Config): Promise<CandidateSet> {
     fetchAwardDetail(config, id),
   );
 
-  const withOpportunityNumber = all.filter(hasUsableOpportunityNumber);
-  const opportunityNumbers = [
-    ...new Set(withOpportunityNumber.map(opportunityNumberOf)),
-  ].sort();
-
-  return { all, withOpportunityNumber, opportunityNumbers };
+  return deriveCandidateSet(all);
 }
