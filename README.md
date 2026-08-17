@@ -82,8 +82,7 @@ Four commands are available:
 - `pnpm build:awards` runs the full pipeline. It reuses the committed stage 1
   snapshot, resolves opportunity numbers, joins, filters, transforms, and
   validates.
-- `pnpm validate:awards` re-validates `out/awards.json`, falling back to the
-  committed `data/awards.json`.
+- `pnpm validate:awards` re-validates an existing `out/awards.json`.
 - `pnpm check:reference` rebuilds offline with `AS_OF` pinned to the snapshot
   date and compares the result to `data/awards.json`, so the reference output
   cannot drift from what the code and inputs actually produce.

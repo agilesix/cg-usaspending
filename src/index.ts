@@ -11,8 +11,7 @@
  *                           Simpler.Grants.gov, joins, filters, transforms to
  *                           CommonGrants AwardBase, and validates.
  *
- *   pnpm validate:awards    Re-validates out/awards.json, falling back to the
- *                           committed data/awards.json.
+ *   pnpm validate:awards    Re-validates an existing out/awards.json.
  */
 
 import fs from "node:fs/promises";
@@ -270,18 +269,10 @@ async function build(config: Config): Promise<boolean> {
 // =============================================================================
 
 async function validate(config: Config): Promise<boolean> {
-  // Falls back to the committed reference output so a fresh clone can validate
-  // before its first build.
-  let awards = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
-  let source = path.join(config.outDir, AWARDS_FILE);
-  if (!awards) {
-    awards = await readJson<unknown[]>(config.dataDir, AWARDS_FILE);
-    source = path.join(config.dataDir, AWARDS_FILE);
-  }
+  const awards = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
   if (!awards) {
     console.error(
-      `No awards to validate at ${path.join(config.outDir, AWARDS_FILE)} or ` +
-        `${path.join(config.dataDir, AWARDS_FILE)}; run pnpm build:awards`,
+      `No ${path.join(config.outDir, AWARDS_FILE)} to validate; run pnpm build:awards`,
     );
     return false;
   }
@@ -289,9 +280,7 @@ async function validate(config: Config): Promise<boolean> {
   const validator = await validatorFor(config, awards);
   const { failures, knownGaps } = validateAll(validator, awards);
 
-  console.log(
-    `Validated ${awards.length} records from ${source} against AwardBase`,
-  );
+  console.log(`Validated ${awards.length} records against AwardBase`);
   if (knownGaps.length > 0) {
     printFailures(
       `${knownGaps.length} record(s) exercise a known schema gap:`,
