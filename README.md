@@ -84,8 +84,9 @@ Four commands are available:
   validates.
 - `pnpm validate:awards` re-validates an existing `out/awards.json`.
 - `pnpm check:reference` rebuilds offline with `AS_OF` pinned to the snapshot
-  date and compares the result to `data/awards.json`, so the reference output
-  cannot drift from what the code and inputs actually produce.
+  date and compares the result to `data/awards.json`, so drift between the
+  reference output and what the code and inputs actually produce shows up as a
+  failing check.
 
 ### Award status and `AS_OF`
 
