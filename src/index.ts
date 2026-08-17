@@ -200,12 +200,9 @@ async function build(config: Config): Promise<boolean> {
         : ", all emitted"),
   );
 
-  // The reference date the records are derived against, which AS_OF can pin.
-  // Distinct from when the run happened; the report records both.
-  const fetchedAt = config.asOf;
   const awards: AwardBase[] = join.selected.map((pair) =>
     toAwardBase(pair.award, pair.opportunity, {
-      fetchedAt,
+      asOf: config.asOf,
       opportunityIdentifiers: config.opportunityIdentifiers,
     }),
   );
@@ -230,7 +227,7 @@ async function build(config: Config): Promise<boolean> {
   const awardsPath = await writeJson(config.outDir, AWARDS_FILE, awards);
   const reportPath = await writeJson(config.outDir, REPORT_FILE, {
     generatedAt: new Date().toISOString(),
-    asOf: fetchedAt.toISOString(),
+    asOf: config.asOf.toISOString(),
     source: {
       usaSpending: {
         baseUrl: config.usaSpendingBaseUrl,
