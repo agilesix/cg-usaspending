@@ -110,7 +110,7 @@ Tracked inputs live in `data/`:
 | `usaspending-candidates.json` | Raw USAspending award records from stage 1.                                     |
 | `opportunity-cache.json`      | Opportunity number to opportunity, including confirmed misses.                  |
 | `awards.json`                 | Committed reference output; `pnpm check:reference` proves a rebuild matches it. |
-| `schemas/`                    | Vendored CommonGrants v0.4.0 YAML schema bundle, everything `AwardBase` needs.  |
+| `schemas/`                    | Vendored CommonGrants YAML schema bundle, everything `AwardBase` needs. Version and staleness check: [`data/schemas/README.md`](data/schemas/README.md). |
 
 Generated output lands in `out/`:
 
