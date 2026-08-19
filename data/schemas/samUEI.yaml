@@ -1,0 +1,7 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: samUEI.yaml
+type: string
+examples:
+  - AB0123456789
+pattern: ^[A-HJ-NP-Z0-9]{12}$
+description: A Unique Entity Identifier (UEI) issued by SAM.gov

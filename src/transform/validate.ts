@@ -6,8 +6,9 @@
  * schema, loads every file reachable from it, and compiles the result with Ajv
  * (draft 2020-12, which the bundle's `unevaluatedProperties` assertions need).
  *
- * Schemas come from a local directory when `CG_SCHEMA_DIR` is set, and from
- * commongrants.org otherwise.
+ * Schemas come from a local directory when `CG_SCHEMA_DIR` is set, falling back
+ * to the vendored bundle in `data/schemas/` when present, and to commongrants.org
+ * otherwise.
  */
 
 import fs from "node:fs/promises";

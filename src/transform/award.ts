@@ -388,14 +388,14 @@ function buildRecipients(award: AwardDetail): OrgRefCollection | undefined {
 }
 
 /** Record timestamps, standing in for the ones USAspending does not publish. */
-function buildTimestamps(award: AwardDetail, fetchedAt: Date): SystemMetadata {
+function buildTimestamps(award: AwardDetail, asOf: Date): SystemMetadata {
   const signed = award.date_signed?.trim();
   const start = award.period_of_performance?.start_date?.trim();
   const createdAt = signed
     ? utcMidnight(signed)
     : start
       ? utcMidnight(start)
-      : utcDateTime(fetchedAt.toISOString());
+      : utcDateTime(asOf.toISOString());
 
   const modified = award.period_of_performance?.last_modified_date?.trim();
   const lastModifiedAt = modified ? utcMidnight(modified) : createdAt;
@@ -416,8 +416,8 @@ function buildTimestamps(award: AwardDetail, fetchedAt: Date): SystemMetadata {
 // =============================================================================
 
 export interface TransformContext {
-  /** When the source records were fetched. Used for status and fallback timestamps. */
-  fetchedAt: Date;
+  /** The date the records are derived against. Used for status and fallback timestamps. */
+  asOf: Date;
   /** Whether to emit identifiers on the opportunity reference. */
   opportunityIdentifiers: "include" | "omit";
 }
@@ -430,17 +430,14 @@ export function toAwardBase(
 ): AwardBase {
   const awardId = awardUuid(award.generated_unique_award_id);
   const federalOpportunityNumber = opportunityNumberOf(award);
-  const { createdAt, lastModifiedAt } = buildTimestamps(
-    award,
-    context.fetchedAt,
-  );
+  const { createdAt, lastModifiedAt } = buildTimestamps(award, context.asOf);
 
   const record: AwardBase = {
     id: awardId,
     title: buildTitle(award, opportunity),
     identifiers: buildIdentifiers(award, awardId),
     description: buildDescription(award, federalOpportunityNumber),
-    status: buildStatus(award, context.fetchedAt),
+    status: buildStatus(award, context.asOf),
     opportunity: buildOpportunityRef(
       award,
       opportunity,

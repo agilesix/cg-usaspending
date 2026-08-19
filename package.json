@@ -10,7 +10,8 @@
     "fetch:candidates": "tsx src/index.ts fetch-candidates",
     "build:awards": "tsx src/index.ts build",
     "validate:awards": "tsx src/index.ts validate",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "check:reference": "AS_OF=2026-08-14 OUT_DIR=out/reference tsx src/index.ts build && cmp out/reference/awards.json data/awards.json && echo 'rebuild reproduces data/awards.json'"
   },
   "dependencies": {
     "@common-grants/cg-grants-gov": "^0.3.1",

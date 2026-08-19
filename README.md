@@ -9,6 +9,12 @@ assistance awards as `funding_opportunity.number`, and the Grants.gov plugin
 exposes the same value on an opportunity as
 `customFields.federalOpportunityNumber`.
 
+The repo ships with static snapshots of both datasets under `data/`, so the
+default run is offline: no API keys, no network. The committed `data/awards.json`
+is the reference output, and `pnpm check:reference` rebuilds it offline and
+confirms the result is byte for byte identical. Live API access is only needed to
+refresh the snapshots.
+
 ## Install
 
 ```bash
@@ -17,11 +23,12 @@ pnpm install
 
 ## Configuration
 
-`SGG_API_KEY` is the only value you need to set. Everything else has a default.
+Every value has a default. `SGG_API_KEY` is only needed when refreshing the
+snapshots against the live APIs.
 
 | Variable                       | Default                                 | Purpose                                                                                         |
 | ------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `SGG_API_KEY`                  | (none)                                  | Simpler.Grants.gov API key. Required for opportunity lookups.                                   |
+| `SGG_API_KEY`                  | (none)                                  | Simpler.Grants.gov API key. Only needed for opportunity numbers not already in the committed cache. |
 | `SGG_BASE_URL`                 | `https://api.simpler.grants.gov`        | Simpler.Grants.gov CommonGrants API.                                                            |
 | `SGG_AUTH_HEADER`              | `X-API-Key`                             | Header the API key is sent in. Set to `X-Auth` if the key is rejected.                          |
 | `USASPENDING_BASE_URL`         | `https://api.usaspending.gov`           | USAspending API. Needs no key.                                                                  |
@@ -34,9 +41,11 @@ pnpm install
 | `CONCURRENCY`                  | `8`                                     | Max in-flight requests to USAspending.                                                          |
 | `OPPORTUNITY_IDENTIFIERS`      | `omit`                                  | `include` to emit `opportunity.identifiers`, which the current schema rejects. See below.       |
 | `REFRESH_CANDIDATES`           | unset                                   | Set to `1` to re-sample USAspending instead of reusing stage 1 output.                          |
-| `CG_SCHEMA_DIR`                | unset                                   | Local CommonGrants YAML schema directory. Schemas are fetched from commongrants.org when unset. |
+| `CG_SCHEMA_DIR`                | `./data/schemas` when present           | Local CommonGrants YAML schema directory. Schemas are fetched from commongrants.org when neither is available. |
 | `CG_SCHEMA_BASE_URL`           | `https://commongrants.org/schemas/yaml` | Where to fetch schemas from.                                                                    |
+| `DATA_DIR`                     | `./data`                                | Tracked input snapshots: candidates, opportunity cache, vendored schemas.                       |
 | `OUT_DIR`                      | `./out`                                 | Output directory.                                                                               |
+| `AS_OF`                        | now                                     | Date the run treats as "now" for award status and record timestamps. Pin it to reproduce a snapshot. See below. |
 
 The default agency list is HHS, Education, EPA, Justice, Interior, NSF, and
 Energy. DOT, USDA, and HUD are left out because they report `NOT APPLICABLE` for
@@ -46,27 +55,69 @@ contribute candidates that get filtered back out.
 ## Run
 
 ```bash
-export SGG_API_KEY="your-api-key"
 pnpm build:awards
 ```
 
-Three commands are available:
+That is the whole run: the pipeline reads the committed snapshots, joins,
+transforms, validates, and writes `out/awards.json`. No keys, no network.
+
+To refresh the snapshots against the live APIs:
+
+```bash
+export SGG_API_KEY="your-api-key"
+REFRESH_CANDIDATES=1 pnpm build:awards
+```
+
+Re-sampling rewrites `data/usaspending-candidates.json` and adds any new
+opportunity-number lookups to `data/opportunity-cache.json`, so a refresh shows
+up as a reviewable git diff.
+
+Four commands are available:
 
 - `pnpm fetch:candidates` runs stage 1 only. It samples USAspending and reports
-  how many awards carry a usable opportunity number. No API key needed.
-- `pnpm build:awards` runs the full pipeline. It reuses stage 1 output when
-  present, resolves opportunity numbers, joins, filters, transforms, and
+  how many awards carry a usable opportunity number. No API key needed, but it
+  goes to the network and rewrites `data/usaspending-candidates.json`, so the
+  refreshed snapshot shows up as a git diff the same way `REFRESH_CANDIDATES=1`
+  does.
+- `pnpm build:awards` runs the full pipeline. It reuses the committed stage 1
+  snapshot, resolves opportunity numbers, joins, filters, transforms, and
   validates.
 - `pnpm validate:awards` re-validates an existing `out/awards.json`.
+- `pnpm check:reference` rebuilds offline with `AS_OF` pinned to the snapshot
+  date and compares the result to `data/awards.json`, so drift between the
+  reference output and what the code and inputs actually produce shows up as a
+  failing check.
 
-Output lands in `out/`:
+### Award status and `AS_OF`
 
-| File                          | Contents                                                                                                                      |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `awards.json`                 | The sample of CommonGrants `AwardBase` records.                                                                               |
-| `report.json`                 | Run metadata, the stage-by-stage funnel, which opportunity numbers matched, and any validation failures or known schema gaps. |
-| `usaspending-candidates.json` | Raw USAspending award records from stage 1.                                                                                   |
-| `opportunity-cache.json`      | Opportunity number to opportunity, including confirmed misses.                                                                |
+An award's `status` is derived by comparing its period of performance against a
+reference date, which defaults to the moment the run happens. That is what a live
+run wants, and it means an unpinned rebuild of a fixed snapshot legitimately
+changes over time: every award whose period of performance has since ended moves
+from `awarded` to `completed`. The same reference date is the last-resort
+fallback for `createdAt` on an award that reports neither a signing date nor a
+period-of-performance start.
+
+So reproducing `data/awards.json` means pinning the reference date to the day the
+snapshot was taken, which is what `AS_OF` is for and what `pnpm check:reference`
+does. Refreshing the snapshots means bumping the pinned date in that script
+alongside the regenerated data.
+
+Tracked inputs live in `data/`:
+
+| File                          | Contents                                                                        |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| `usaspending-candidates.json` | Raw USAspending award records from stage 1.                                     |
+| `opportunity-cache.json`      | Opportunity number to opportunity, including confirmed misses.                  |
+| `awards.json`                 | Committed reference output; `pnpm check:reference` proves a rebuild matches it. |
+| `schemas/`                    | Vendored CommonGrants YAML schema bundle, everything `AwardBase` needs. Version and staleness check: [`data/schemas/README.md`](data/schemas/README.md). |
+
+Generated output lands in `out/`:
+
+| File          | Contents                                                                                                                      |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `awards.json` | The sample of CommonGrants `AwardBase` records.                                                                               |
+| `report.json` | Run metadata, the stage-by-stage funnel, which opportunity numbers matched, and any validation failures or known schema gaps. |
 
 Lookups are cached by opportunity number, misses included. A number that
 Simpler.Grants.gov does not have is a stable fact, so caching it keeps repeat
@@ -164,6 +215,11 @@ src/
     dates.ts          protocol date construction
     ids.ts            deterministic UUIDs
     validate.ts       JSON Schema validation
+data/
+  usaspending-candidates.json   stage 1 snapshot of USAspending awards
+  opportunity-cache.json        Simpler.Grants.gov lookups, misses included
+  awards.json                   committed reference output
+  schemas/                      vendored CommonGrants YAML schema bundle
 ```
 
 ### Types and dates

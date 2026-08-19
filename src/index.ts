@@ -3,7 +3,8 @@
  *
  *   pnpm fetch:candidates   Stage 1 only. Samples USAspending assistance awards
  *                           and reports how many carry a usable funding
- *                           opportunity number. Needs no API key.
+ *                           opportunity number. Needs no API key, and rewrites
+ *                           the tracked data/usaspending-candidates.json.
  *
  *   pnpm build:awards       Full pipeline. Reuses stage 1 output when present,
  *                           resolves each opportunity number against
@@ -16,7 +17,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { loadConfig, type Config } from "./config.js";
-import { collectCandidates, type CandidateSet } from "./fetch/usaspending.js";
+import {
+  collectCandidates,
+  CandidateSnapshotSchema,
+  deriveCandidateSet,
+  type CandidateSet,
+} from "./fetch/usaspending.js";
 import { createOpportunityResolver } from "./fetch/sgg.js";
 import { joinAwardsToOpportunities } from "./transform/join.js";
 import { toAwardBase } from "./transform/award.js";
@@ -82,24 +88,19 @@ function toWire<T>(records: readonly T[]): unknown[] {
 }
 
 async function writeJson(
-  config: Config,
+  dir: string,
   name: string,
   value: unknown,
 ): Promise<string> {
-  await fs.mkdir(config.outDir, { recursive: true });
-  const target = path.join(config.outDir, name);
+  await fs.mkdir(dir, { recursive: true });
+  const target = path.join(dir, name);
   await fs.writeFile(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
   return target;
 }
 
-async function readJson<T>(
-  config: Config,
-  name: string,
-): Promise<T | undefined> {
+async function readJson<T>(dir: string, name: string): Promise<T | undefined> {
   try {
-    return JSON.parse(
-      await fs.readFile(path.join(config.outDir, name), "utf8"),
-    ) as T;
+    return JSON.parse(await fs.readFile(path.join(dir, name), "utf8")) as T;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw error;
@@ -132,7 +133,10 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
     `  ${candidates.opportunityNumbers.length} distinct opportunity numbers`,
   );
 
-  const target = await writeJson(config, CANDIDATES_FILE, candidates);
+  // Only the fetched awards are stored; the filtered views are derived on read.
+  const target = await writeJson(config.dataDir, CANDIDATES_FILE, {
+    all: candidates.all,
+  });
   console.log(`  wrote ${target}`);
   return candidates;
 }
@@ -140,10 +144,19 @@ async function fetchCandidates(config: Config): Promise<CandidateSet> {
 async function loadCandidates(config: Config): Promise<CandidateSet> {
   if (process.env.REFRESH_CANDIDATES === "1") return fetchCandidates(config);
 
-  const cached = await readJson<CandidateSet>(config, CANDIDATES_FILE);
-  if (cached) {
+  const snapshotPath = path.join(config.dataDir, CANDIDATES_FILE);
+  const raw = await readJson<unknown>(config.dataDir, CANDIDATES_FILE);
+  if (raw !== undefined) {
+    let cached: CandidateSet;
+    try {
+      cached = deriveCandidateSet(CandidateSnapshotSchema.parse(raw).all);
+    } catch (error) {
+      throw new Error(
+        `${snapshotPath} does not match the expected shape: ${(error as Error).message}`,
+      );
+    }
     console.log(
-      `Reusing ${path.join(config.outDir, CANDIDATES_FILE)} ` +
+      `Reusing ${snapshotPath} ` +
         `(${cached.withOpportunityNumber.length} candidates, ` +
         `${cached.opportunityNumbers.length} distinct numbers)`,
     );
@@ -187,10 +200,9 @@ async function build(config: Config): Promise<boolean> {
         : ", all emitted"),
   );
 
-  const fetchedAt = new Date();
   const awards: AwardBase[] = join.selected.map((pair) =>
     toAwardBase(pair.award, pair.opportunity, {
-      fetchedAt,
+      asOf: config.asOf,
       opportunityIdentifiers: config.opportunityIdentifiers,
     }),
   );
@@ -212,9 +224,10 @@ async function build(config: Config): Promise<boolean> {
     );
   }
 
-  const awardsPath = await writeJson(config, AWARDS_FILE, awards);
-  const reportPath = await writeJson(config, REPORT_FILE, {
-    generatedAt: fetchedAt.toISOString(),
+  const awardsPath = await writeJson(config.outDir, AWARDS_FILE, awards);
+  const reportPath = await writeJson(config.outDir, REPORT_FILE, {
+    generatedAt: new Date().toISOString(),
+    asOf: config.asOf.toISOString(),
     source: {
       usaSpending: {
         baseUrl: config.usaSpendingBaseUrl,
@@ -253,7 +266,7 @@ async function build(config: Config): Promise<boolean> {
 // =============================================================================
 
 async function validate(config: Config): Promise<boolean> {
-  const awards = await readJson<unknown[]>(config, AWARDS_FILE);
+  const awards = await readJson<unknown[]>(config.outDir, AWARDS_FILE);
   if (!awards) {
     console.error(
       `No ${path.join(config.outDir, AWARDS_FILE)} to validate; run pnpm build:awards`,
